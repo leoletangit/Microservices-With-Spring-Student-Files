@@ -1,31 +1,40 @@
-## Lab 5 - Using Ribbon Clients
+## Lab 5 - Usando Ribbon Clients
 
-**Part 1, Run Config Server, Eureka, and the word servers**
+**Parte 1, Ejecuta el Config Server, Eureka, y los micro servicios words**
 
-1.  Let's make a fresh start: stop all of the services that you may have running from previous exercises.  If using an IDE you may also wish to close all of the projects that are not related to "lab-5" or "common".
+1.  Vamos a iniciar desde cero: deten todos los micro servicios que iniciaste en los ejercicios anteriores.  
+Si usas un IDE cierra todos los proyectos que no tengan que ver con el "lab-5" o "common".
 
-2.  Open the common-config-server and the common-eureka-server.  These are versions of what you created and used in the last few chapters.  If you haven't done so already, alter the common-config-server's application.yml to point to your own github repository.  
+2.  Abre el common-config-server y el common-eureka-server. No olvides que el application.yml del common-config-server apunte a tu repositorio de github.  
 
-3.  Start 5 separate copies of the lab-5-word-server, using the profiles "subject", "verb", "article", "adjective", and "noun".  There are several ways to do this, depending on your preference:
-  - If you wish to use Maven, open separate command prompts in the target directory and run these commands:
+3.  Inicia 5 copias diferentes de el lab-5-word-server, usando los profiles "subject", "verb", "article", "adjective", y "noun".  
+     Hay varias formas de hacer eso dependiendo de tus preferencias:
+  - Si usas Maven, abre diferentes command prompts y en el directorio target ejecuta estos comandos:
     - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=subject"
     - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=verb"
     - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=article"
     - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=adjective"
     - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=noun"
-  - Or if you wish to run from directly within STS, right click on the project, Run As... / Run Configurations... .  From the Spring Boot tab specify a Profile of "subject", UNCHECK live bean support, and Run.  Repeat this process (or copy the run configuration) for the profiles "verb", "article", "adjective", "noun".
+  - Si usas sólo java:
+    - java -jar -Dspring.profiles.active=subject target/word-client-0.0.1-SNAPSHOT.jar ( y así para los otros profiles)
+	
+	
 		
-4.  Check the Eureka server running at [http://localhost:8010](http://localhost:8010).   Ignore any warnings about running a single instance; this is expected.  Ensure that each of your 5 applications are eventually listed in the "Application" section, bearing in mind it may take a few moments for the registration process to be 100% complete.	
+4.  Verifica que el servidor Eureka se ejecuta en  [http://localhost:8010](http://localhost:8010).  
+   Ignora las advertencias de que solo estas ejecutando una simple instancia; esto es lo esperado. Asegurate que tus 5 aplicaciones son listadas en la sección  "Application", esto puede durar unos minutos, ten paciencia.	
 
-5.  Optional - If you wish, you can click on the link to the right of any of these servers.  Replace the "/info" with "/" and refresh several times.  You can observe the randomly generated words.
+5.  Opcional - Si haces clic en cualquiera de los servicios. Reemplaza el "/info" con "/" y refresca varias veces. Tu puedes ver las palabras (words) generadas aleatoriamente.
 
-  **Part 2, Modify sentence server to use Ribbon**	
+  **Parte 2, Modifica el servicio sentence para usar Ribbon**	
 
-6.  Run the lab-5-sentence-server project.  Refresh Eureka to see it appear in the list.  Test to make sure it works by opening [http://localhost:8020/sentence](http://localhost:8020/sentence).  You should see several random sentences appear.  We will refactor this code to make use of Ribbon.
+6.  Ejecuta el proyecto sentence-client.  Refresca Eureka para ver si aparece en la lista.  
+     Verifica si trabaja abriendo este link [http://localhost:8020/sentence](http://localhost:8020/sentence).  
+	 Tu veras diferentes sentencias aleatorias.  Nosotros refactorizamos este código para usar Ribbon.
 
-7.  Stop the lab-5-sentence-server.  Add the org.springframework.cloud / spring-cloud-starter-ribbon dependency.
+7.  Deten el proyecto sentence-client.  Agrega la dependencia org.springframework.cloud / spring-cloud-starter-netflix-ribbonn.
 
-8.  Go to Application.java.  Create a new @Bean method that instantiates and returns a new RestTemplate.  The @Bean method should also be annotated with @LoadBalanced - this will associate the RestTemplate with Ribbon.  Code should look something like this:
+8.  Ir a la clase Application.java.  Crea un nuevo método @Bean que instancia y retorna un nuevo RestTemplate.  
+El método @Bean debería ser anotado con @LoadBalanced - esto asociará el RestTemplate con Ribbon.  El código luce así:
 
   ```
     //  This "LoadBalanced" RestTemplate 
@@ -36,42 +45,61 @@
     }  
   ```
 
-9.  Open SentenceController.java.  Replace the @Autowired DiscoveryClient with an @Autowired RestTemplate.  Note that this will temporarily break the code.
+9.  Abre el SentenceController.java.  Reemplaza el @Autowired DiscoveryClient con un @Autowired RestTemplate.  
+     
 
-10.  Refactor the code in the getWord method.  Use your restTemplate's getForObject method to call the given service.  The first argument should be a concatenation of "http://" and the given service ID.  The second argument should simply be a String.class; we want the restTemplate to yield a String containing whatever was returned to the server.  The call should look like this:
+10.  Refactoriza el método getWord. Usa el método restTemplate's getForObject para llamar al servicio.  
+     El primer argumento debería ser una concatenación de "http://" y el service ID.  
+	 El segundo argumento debería ser simplemente un String.class; 
+	 La llamada debería verse así:
 
   ```
     return template.getForObject("http://" + service, String.class);
   ```
 
-11.  Run the project.  Test it to make sure it works by opening [http://localhost:8020/sentence](http://localhost:8020/sentence).  The application should work the same as it did before, though now it is using Ribbon client side load balancing.
+11. Ejecuta el proyecto.  Prueba que este trabaja abriendo [http://localhost:8020/sentence](http://localhost:8020/sentence). 
+    La aplicación debería trabajar como antes, pero, ahora esta usando Ribbon, que le da balanceo de carga del lado del cliente.
 
-  **BONUS - Multiple Clients**  At this point we have refactored the code to use Ribbon, but we haven’t really seen Ribbon’s full power as a client side load-balancer.  To illustrate this we will run two copies of one of the “noun” word server with different words hard-coded.  You’ll see the sentence adapt to make use of values from both servers.
+  **BONUS - Multiples Clientes**  En este punto ya se ha refactorizado el código usando Ribbon, 
+   pero, no hemos visto el poder de Ribbon como balanceador del lado del cliente.  
+    Para ilustrar esto ejecutamos dos servicios word de tipo “noun”.  
+	 Veras que el servicio sentence se adapta para hacer uso de los dos servicios "noun".
 
-12. Locate and stop the copy of the “word” server that is serving up nouns.  If you’ve lost track, you can generally examine the console output of each app and find the one that reported itself to Eureka as “NOUN”.
+12. Localiza y deten la copia del servicio  “word” que esta sirviendo nouns.  
 
-13. Open lab-5-word-server.  Edit the bootstrap.yml and add the following Eureka setting (the comment explains the purpose of this entry):
+13. Abre el word-client.  Edita el bootstrap.yml y agrega la siguiente configuración de Eureka:
   ```
     # Allow Eureka to recognize two apps of the same type on the same host as separate instances:
     eureka:
       instance:
         instanceId: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
   ```
-14. Go to the POM.  Remove the dependency for DevTools.  DevTools is great for automatically detecting changes and restarting, but it will interfere with the next few steps.
+14. Ir a el POM.  Elimina la dependencia de DevTools.  
+    DevTools es magnifico para automaticamente detectar cambios y reiniciarlos, pero, esto interferirá en los siguientes pasos.
 
-15. Start a copy of the lab-5-word-server using the “noun” profile, just as you did earlier.
+15. Inicia una copia de word-client usando el profile “noun”, como hiciste anteriormente.
 
-16. While this new server is running, edit the WordController.java class.  Comment out the “String words” variable and replace it with this hard-coded version:
+16. Mientras este nuevo servidor se esta ejecutando, edita la clase WordController.java.  Comenta la variable “String words” 
+    y reemplaza esto con la versión hard-coded:
   ```
     String words = “icicle,refrigerator,blizzard,snowball”;
   ```
-17. Start another copy of the lab-5-word-server using the “noun” profile.  Because each runs on its own port, there will be no conflict.  You will now have two noun servers presenting different lists of words.  Both will register with Eureka, and the Ribbon load balancer in the sentence server will soon learn that both exist.
+17. Inicia otra copia de word-client usando el profile “noun”.  Como cada uno se ejecuta en su propio puerto, 
+   no habrá conflicto.  Tendremos dos servicios noun presentando diferentes listas de words.  
+    Ambos se registrarán con Eureka, y el Ribbon load balancer en el servicio sentence pronto aprenderá que ambos existen.
 
-18. Return to the Eureka page running at [http://localhost:8010](http://localhost:8010).  Refresh it several times.  Once registration is complete, you should see two “NOUN” services running, each with its own instance ID (this is the purpose for the setting you added a few steps back).
+18. Retorna a la página de Eureka en [http://localhost:8010](http://localhost:8010).  Refresca este varias veces.  
+    Una vez que el registro esta completo, veremos dos servicios “NOUN” ejecutandose, cada uno con su propio instance ID 
+	
 
-19. Refresh the sentence browser page at [http://localhost:8020/sentence](http://localhost:8020/sentence).  Once it becomes aware of the new “NOUN” service, the loadbalancer will distribute the load between the two services, and half of the time your sentence will end with one of the “cold” nouns that you hard-coded above.
+19. Refresca la pagina sentence en el navegador en [http://localhost:8020/sentence](http://localhost:8020/sentence).  
+   El loadbalancer distribuirá la carga entre los dos servicios, la mitad del tiempo tu sentence mostrará “cold” nouns que hard-coded antes.
 
-20. Stop one of the NOUN services and refresh your sentence browser page several times.  You will see that it fails half the time as one of the instances is no longer available.  In fact, since the default load balancer is based on a round-robin algorithm, the failure occurs every second time the noun service is used.  If you continue refreshing long enough, you will see that the failures eventually stop as the ribbon client becomes updated with the revised server list from Eureka. 
+20. Deten uno de los servicios  NOUN y refresca tu servicio sentence en el navegador varias veces.  
+    Veras que este falla la mitad del tiempo, porque ya una de las instancias no esta disponible.  
+	 En efecto, puesto, que el  default load balancer esta basado en un algoritmo round-robin, la falla ocurrirá cada segundo que el noun es usado.
+	 Si continuamos refrescando un buen tiempo, tu veras que las fallas eventualmente se detienen ya que el cliente ribbon sera actualizado con la lista de servicios que proporciona Eureka.
+	
 
 **Reflection:**
 

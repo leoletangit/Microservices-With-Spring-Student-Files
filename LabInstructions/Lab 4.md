@@ -24,7 +24,8 @@
     </dependencyManagement>
 ```
 
-3. Agrega una dependencia con group "org.springframework.cloud" y artifact "spring-cloud-starter-netflix-eureka-server".  No se necesita especificar una versión -- eso ya esta definido en el proyecto padre.
+3. Agrega una dependencia con group "org.springframework.cloud" y artifact "spring-cloud-starter-netflix-eureka-server".  
+No se necesita especificar una versión -- eso ya esta definido en el proyecto padre.
 
 4. Crea un application.yml (o properties) en la raiz de tu classpath (src/main/resources es lo recomendado).  Agrega los siguientes key/valor (usa el correcto formato YAML):
   ```
@@ -39,11 +40,16 @@ spring:
     name: lab-4-eureka-server
   ```
 
-6. Agrega @EnableEurekaServer a la clase Application.  Guarda tu trabajo.  Inicia el servidor.  Temporalmente ignora las advertencias, acerca de ejecutar una simple instancia (i.e. connection refused, unable to refresh cache, backup registry not implemented, etc.).  Abre un navegador y ve a [http://localhost:8010](http://localhost:8010) para ver al servidor ejecutandose.
+6. Agrega @EnableEurekaServer a la clase Application.  Guarda tu trabajo.  Inicia el servidor. 
+ Temporalmente ignora las advertencias, acerca de ejecutar una simple instancia 
+ (i.e. connection refused, unable to refresh cache, backup registry not implemented, etc.). 
+ Abre un navegador y ve a [http://localhost:8010](http://localhost:8010) para ver al servidor ejecutandose.
 
 **Parte 2, crea los clientes**  
     
-    En esta sección crearemos aplicaciones clientes que trabajaran juntos para componener una oración (sentence).  La oración contendrá un subject, verb, article, adjective y noun como:  “I saw a leaky boat” o “You have the reasonable book”.  5 servicios generarán aleatoriamente las palabras correspondientes, y un 6th servicio las ensamblara todas para generar una oración.
+    En esta sección crearemos aplicaciones clientes que trabajaran juntos para componener una oración (sentence). 
+	La oración contendrá un subject, verb, article, adjective y noun como:  “I saw a leaky boat” o “You have the reasonable book”. 
+	5 servicios generarán aleatoriamente las palabras correspondientes, y un 6th servicio las ensamblara todas para generar una oración.
 
 7. Crea un nuevo Spring Boot web application.  
   - Coloca como nombre de proyecto "word-client”, y usa esta valor para el Artifact.  
@@ -149,7 +155,7 @@ public class WordController {
   String words;
 
   @GetMapping("/")
-  public String getWorkds(){
+  public String getWords(){
     String[] wordArray = words.split(",");
     int i = (int)Math.round(Math.random() * (wordArray.length - 1));
     return wordArray[i];
@@ -159,6 +165,7 @@ public class WordController {
   ```
 
 13. Agrega @EnableEurekaClient a la clase Application.
+
 
 
 14. Crea un nuevo Spring Boot web application.  
