@@ -1,0 +1,29 @@
+---
+spring:
+  profiles: subject
+  application:
+    name: subject
+
+---
+spring:
+  profiles: verb
+  application:
+    name: verb
+
+---
+spring:
+  profiles: article
+  application:
+    name: article
+
+---
+spring:
+  profiles: adjective
+  application:
+    name: adjective
+
+---
+spring:
+  profiles: noun
+  application:
+    name: noun

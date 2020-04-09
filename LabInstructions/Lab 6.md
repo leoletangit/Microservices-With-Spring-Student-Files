@@ -1,35 +1,54 @@
-## Lab 6 - Using Feign Declarative REST clients
+## Lab 6 - Usando Feign Declarative REST clients
 
 **Part 1, Start existing services.**
 
-1.  Stop all of the services that you may have running from previous exercises. If using an IDE you may also wish to close all of the projects that are not related to "lab-6" or "common".
+1.  Vamos a iniciar desde cero: deten todos los micro servicios que iniciaste en los ejercicios anteriores.  
+Si usas un IDE cierra todos los proyectos que no tengan que ver con el "lab-6" o "common".
 
-2.  Start the common-config-server and the common-eureka-server. These are versions of what you created and used in the last few chapters.
+2.  Abre el common-config-server y el common-eureka-server. No olvides que el application.yml del common-config-server apunte a 
+tu repositorio de github.  
 
-3.  Lab 6 has copies of the word server and sentence server that have been slightly refactored from what we worked on previously.  Start 5 separate copies of the lab-6-word-server, using the profiles "subject", "verb", "article", "adjective", and "noun".  There are several ways to do this, depending on your preference:
-  - If you wish to use Maven, open separate command prompts in the target directory and run these commands:
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=subject"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=verb"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=article"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=adjective"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=noun"
-  - Or if you wish to run from directly within STS, right click on the project, Run As... / Run Configurations... .  From the Spring Boot tab specify a Profile of "subject", UNCHECK live bean support, and Run.  Repeat this process (or copy the run configuration) for the profiles "verb", "article", "adjective", "noun".
+3.  Inicia 5 copias diferentes de el word-client, usando los profiles "subject", "verb", "article", "adjective", y "noun".  
+     Hay varias formas de hacer eso dependiendo de tus preferencias:
+  - Si usas Maven, abre diferentes command prompts y en el directorio target ejecuta estos comandos:
+    - mvn spring-boot:run -Dspring-boot.run.profiles=subject"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=verb"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=article"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=adjective"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=noun"
+  - Si usas sólo java:
+    - java -jar -Dspring.profiles.active=subject target/word-client-0.0.1-SNAPSHOT.jar ( y así para los otros profiles)
+	
+	
+	
+	
+4.  Verifica que el servidor Eureka se ejecuta en  [http://localhost:8010](http://localhost:8010).  
+   Ignora las advertencias de que solo estas ejecutando una simple instancia; esto es lo esperado. 
+   Asegurate que tus 5 aplicaciones son listadas en la sección  "Application", esto puede durar unos minutos, ten paciencia.	
 
-4.  Check the Eureka server running at [http://localhost:8010](http://localhost:8010).   Ignore any warnings about running a single instance; this is expected.  Ensure that each of your 5 applications are eventually listed in the "Application" section, bearing in mind it may take a few moments for the registration process to be 100% complete.	
+5.  Opcional - Si haces clic en cualquiera de los servicios. Reemplaza el "/info" con "/" y refresca varias veces. 
+Tu puedes ver las palabras (words) generadas aleatoriamente.
 
-5.  Optional - If you wish, you can click on the link to the right of any of these servers.  Replace the "/info" with "/" and refresh several times.  You can observe the randomly generated words within a JSON structure.  
+6.  Ejecuta el sentence project.  Refresh Eureka to see it appear in the list.  Test to make sure it works by opening [http://localhost:8020/sentence](http://localhost:8020/sentence).  You should see several random sentences appear.  We will refactor this code to make use of Feign.
 
-6.  Run the lab-6-sentence-server project.  Refresh Eureka to see it appear in the list.  Test to make sure it works by opening [http://localhost:8020/sentence](http://localhost:8020/sentence).  You should see several random sentences appear.  We will refactor this code to make use of Feign.
-
+  
+  
   **Part 2 - Refactor**
 
-7.  First, take a look at the lab-6-sentence-server project.  It has been refactored a bit from previous examples.  The controller has been simplified to do only web work, the task of assembling the sentence is now in the service layer.  The SentenceService uses @Autowire to reference individual DAO components which have been created to obtain the words from the remote resources.  Since all of the remote resources are structurally the same, there is a fair bit of inheritance in the dao package to make things easy.  But each uses the same Ribbon client technology and RestTemplate used previously.
+7.  First, take a look at the sentence project.  It has been refactored a bit from previous examples.  The controller has been simplified to do only web work, the task of assembling the sentence is now in the service layer.  The SentenceService uses @Autowire to reference individual DAO components which have been created to obtain the words from the remote resources.  Since all of the remote resources are structurally the same, there is a fair bit of inheritance in the dao package to make things easy.  But each uses the same Ribbon client technology and RestTemplate used previously.
 
-8.  Open the POM.  Add another dependency for spring-cloud-starter-feign.
+8.  Open the POM.  Add another dependency for:
 
-9.  Edit the main Application configuration class and @EnableFeignClients.
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
 
-10.  Refactor the “Noun” service to use Feign.  Create a new interface in the dao package called NounClient.  Annotate it with @FeignClient.  What value should you use for the service ID?  The existing code should tell you.
+
+9.  Edit the main Application configuration class and @EnableFeignClients.  Elimina el bean RestTemplate del lab 5. 
+
+10.  Refactor the “Noun” service to use Feign.  Create a new interface in the dao package called NounClient. 
+ Annotate it with @FeignClient.  What value should you use for the service ID?  The existing code should tell you.
 
 11.  Next, provide the method signature to be implemented by Feign.  To think this through, take a fresh look at the lab-6-word-server WordController.  Note the annotation used and return type.  You can actually copy/paste this signature as-is, except 1) remove the method implementation, and 2) there is no need for @ResponseBody as this is implied, and 3) it will be necessary to add method=RequestMethod.GET to clarify that this is a GET request.
 
