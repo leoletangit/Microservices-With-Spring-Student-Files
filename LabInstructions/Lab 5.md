@@ -5,25 +5,28 @@
 1.  Vamos a iniciar desde cero: deten todos los micro servicios que iniciaste en los ejercicios anteriores.  
 Si usas un IDE cierra todos los proyectos que no tengan que ver con el "lab-5" o "common".
 
-2.  Abre el common-config-server y el common-eureka-server. No olvides que el application.yml del common-config-server apunte a tu repositorio de github.  
+2.  Abre el common-config-server y el common-eureka-server. No olvides que el application.yml del common-config-server apunte a 
+tu repositorio de github.  
 
-3.  Inicia 5 copias diferentes de el lab-5-word-server, usando los profiles "subject", "verb", "article", "adjective", y "noun".  
+3.  Inicia 5 copias diferentes de el word-client, usando los profiles "subject", "verb", "article", "adjective", y "noun".  
      Hay varias formas de hacer eso dependiendo de tus preferencias:
   - Si usas Maven, abre diferentes command prompts y en el directorio target ejecuta estos comandos:
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=subject"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=verb"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=article"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=adjective"
-    - mvn spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=noun"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=subject"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=verb"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=article"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=adjective"
+    - mvn spring-boot:run -Dspring-boot.run.profiles=noun"
   - Si usas sólo java:
     - java -jar -Dspring.profiles.active=subject target/word-client-0.0.1-SNAPSHOT.jar ( y así para los otros profiles)
 	
 	
 		
 4.  Verifica que el servidor Eureka se ejecuta en  [http://localhost:8010](http://localhost:8010).  
-   Ignora las advertencias de que solo estas ejecutando una simple instancia; esto es lo esperado. Asegurate que tus 5 aplicaciones son listadas en la sección  "Application", esto puede durar unos minutos, ten paciencia.	
+   Ignora las advertencias de que solo estas ejecutando una simple instancia; esto es lo esperado. 
+   Asegurate que tus 5 aplicaciones son listadas en la sección  "Application", esto puede durar unos minutos, ten paciencia.	
 
-5.  Opcional - Si haces clic en cualquiera de los servicios. Reemplaza el "/info" con "/" y refresca varias veces. Tu puedes ver las palabras (words) generadas aleatoriamente.
+5.  Opcional - Si haces clic en cualquiera de los servicios. Reemplaza el "/info" con "/" y refresca varias veces. 
+Tu puedes ver las palabras (words) generadas aleatoriamente.
 
   **Parte 2, Modifica el servicio sentence para usar Ribbon**	
 
