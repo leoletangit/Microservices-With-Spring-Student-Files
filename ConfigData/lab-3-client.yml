@@ -1,2 +1,6 @@
 ---
 lucky-word: Batman
+----
+spring:
+    profiles: languages
+list: java,c,cpp,python,javascript
