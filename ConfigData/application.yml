@@ -22,21 +22,21 @@ words: ran,knew,had,saw,bought,destroyed
 ---
 spring:
   profiles: article
-application:
+  application:
         name: lab-4-article  
 words: a,the,an
 
 ---
 spring:
   profiles: adjective
-application:i
+  application:
         name: lab-4-adjective
 words: reasonable,leaky,suspicious,ordinary,unlikely,tiny,southamerican,extra
 
 ---
 spring:
   profiles: noun
-application:
+  application:
         name: lab-4-noun
 words: boat,book,vote,seat,backpack,partition,groundhog,car,truck,bicycle,computer,pen,ipad
   
