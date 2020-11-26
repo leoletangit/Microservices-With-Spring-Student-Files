@@ -8,21 +8,29 @@ eureka:
 ---
 spring:
   profiles: subject
+  application:
+        name: lab-4-subject
 words: I,You,He,She,It
   
 ---
 spring:
   profiles: verb
+  application:
+        name: lab-4-verb
 words: ran,knew,had,saw,bought,destroyed
 
 ---
 spring:
   profiles: article
+application:
+        name: lab-4-article  
 words: a,the,an
 
 ---
 spring:
   profiles: adjective
+application:
+        name: lab-4-adjective
 words: reasonable,leaky,suspicious,ordinary,unlikely,tiny,southamerican,extra
 
 ---
