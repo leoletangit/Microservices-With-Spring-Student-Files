@@ -3,7 +3,7 @@
 eureka:
   client:
     serviceUrl:
-            defaultZone: http://localhost:8010/eureka/
+            defaultZone: http://eurekahost:8010/eureka/,http://eureka-primary:8011/eureka/,http://eureka-secundary:8012/eureka/,http://eureka-
       
 ---
 spring:
@@ -29,12 +29,14 @@ words: a,the,an
 ---
 spring:
   profiles: adjective
-application:
+application:i
         name: lab-4-adjective
 words: reasonable,leaky,suspicious,ordinary,unlikely,tiny,southamerican,extra
 
 ---
 spring:
   profiles: noun
+application:
+        name: lab-4-noun
 words: boat,book,vote,seat,backpack,partition,groundhog,car,truck,bicycle,computer,pen,ipad
   
